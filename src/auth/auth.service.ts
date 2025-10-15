@@ -65,6 +65,7 @@ export class AuthService {
       sub: user.id_user,
       email: user.email,
       role: 'partner',
+      partner_id: partner.id_partner,
     };
 
     const access_token = this.jwtService.sign(payload);

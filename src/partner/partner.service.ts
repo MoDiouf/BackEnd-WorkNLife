@@ -64,4 +64,8 @@ export class PartnersService {
 
     return { user, partnerProfile };
   }
+
+  async getCommands() {
+    return this.partnerRepo.find();
+  }
 }

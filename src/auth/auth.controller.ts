@@ -1,5 +1,5 @@
 // auth.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './auth.dto';
 
@@ -9,10 +9,13 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
     return this.authService.login(user);
   }
-  
+
   // 🔐 Connexion portail partenaire
   @Post('login-partner')
   async loginPartner(@Body() loginDto: LoginDto) {

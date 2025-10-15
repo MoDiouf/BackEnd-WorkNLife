@@ -14,8 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Le payload contient les infos encodées dans le token
-    // Par exemple : { sub: user.id_user, email: user.email }
-    return { sub: payload.sub, email: payload.email, role: payload.role };
+
+    return { sub: payload.sub, email: payload.email, role: payload.role, partner_id: payload.partner_id };
   }
 }
