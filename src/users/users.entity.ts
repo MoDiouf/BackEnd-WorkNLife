@@ -1,5 +1,6 @@
 // users/users.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Commande } from 'src/partner/commandes/commandes.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity('User')
 export class User {
@@ -8,6 +9,9 @@ export class User {
 
   @Column()
   full_name: string;
+
+  @OneToMany(() => Commande, (commande) => commande.user)
+commandes: Commande[];
 
   @Column({ unique: true })
   email: string;

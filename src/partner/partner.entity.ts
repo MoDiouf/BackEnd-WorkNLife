@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'src/users/users.entity';
+import { Commande } from './commandes/commandes.entity';
 
 // ===============================
 // 🧩 PartnerPortalTemplate
@@ -48,6 +49,9 @@ export class PartnerProfile {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @OneToMany(() => Commande, (commande) => commande.partner)
+commandes: Commande[];
 
   @Column({ nullable: true })
   user_id: number;

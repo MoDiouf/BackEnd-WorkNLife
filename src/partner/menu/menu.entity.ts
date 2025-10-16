@@ -6,8 +6,10 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { PartnerProfile } from '../partner.entity';
+import { Commande } from '../commandes/commandes.entity';
 
 
 @Entity('Menu')
@@ -21,6 +23,9 @@ export class Menu {
   @ManyToOne(() => PartnerProfile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'partner_id' })
   partner: PartnerProfile;
+
+  @OneToMany(() => Commande, (commande) => commande.menu)
+commandes: Commande[];
 
   @Column({ type: 'varchar', length: 100 })
   name: string;
