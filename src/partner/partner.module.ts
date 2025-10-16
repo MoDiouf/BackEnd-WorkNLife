@@ -8,9 +8,10 @@ import { PartnerPortalTemplate, PartnerProfile } from './partner.entity';
 import { PartnersService } from './partner.service';
 import { MenuController } from './menu/menu.controller';
 import { MenuModule } from './menu/menu.module';
+import { CommandesModule } from './commandes/commandes.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User]), MenuModule],
+  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User]), MenuModule, CommandesModule],
   controllers: [PartnerController, MenuController],
   providers: [PartnersService],
   exports: [PartnersService,TypeOrmModule],

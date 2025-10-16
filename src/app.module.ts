@@ -8,13 +8,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IdentityVerification, User } from './users/users.entity';
 import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { RideController } from './ride/ride.controller';
 import { AuthModule } from './auth/auth.module';
 import { PartnerController } from './partner/partner.controller';
 import { PartnerModule } from './partner/partner.module';
 import { PartnerPortalTemplate, PartnerProfile } from './partner/partner.entity';
 import { MenuModule } from './partner/menu/menu.module';
 import { Menu } from './partner/menu/menu.entity';
+import { Commande } from './partner/commandes/commandes.entity';
+import { CarpoolController } from './carpool/carpool.controller';
+import { CarpoolModule } from './carpool/carpool.module';
 
 @Module({
   imports: [
@@ -24,9 +26,9 @@ import { Menu } from './partner/menu/menu.entity';
       port: 3306,                // port MySQL
       username: 'ameth',         // ton utilisateur
       password: 'Sword@rtonl1ne',
-      database: 'WorkNLife',     
-      entities: [User,IdentityVerification,PartnerPortalTemplate,PartnerProfile,Menu],          
-      synchronize: true,         
+      database: 'WorkNLife',
+      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande], // ajoute toutes tes entités ici
+      synchronize: true,
     }),
     JwtModule.register({
       secret: 'SoloSaasMHD', // mets une vraie clé secrète ici
@@ -35,9 +37,10 @@ import { Menu } from './partner/menu/menu.entity';
     UsersModule,
     AuthModule,
     PartnerModule,
-    MenuModule
+    MenuModule,
+    CarpoolModule
   ],
-  controllers: [AppController, UsersController, AuthController, RideController, PartnerController],
+  controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController],
   providers: [AppService, AuthService],
 })
 export class AppModule {}
