@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PartnerProfile, PartnerPortalTemplate } from './partner.entity';
 import { IdentityVerification, User } from 'src/users/users.entity';
 import * as bcrypt from 'bcrypt';
+import { Menu } from './menu/menu.entity';
 
 @Injectable()
 export class PartnersService {
@@ -24,6 +25,8 @@ export class PartnersService {
     private usersRepo: Repository<User>,
     @InjectRepository(IdentityVerification)
     private verificationRepo: Repository<IdentityVerification>,
+
+    
   ) {}
 
   async createPartner(dto: {

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { Commande } from './commandes/commandes.entity';
+import { Menu } from './menu/menu.entity';
 
 // ===============================
 // 🧩 PartnerPortalTemplate
@@ -64,6 +65,8 @@ commandes: Commande[];
     eager: true,
     nullable: true,
   })
+
+
   @JoinColumn({ name: 'partner_type_id' })
   partner_type: PartnerPortalTemplate;
 

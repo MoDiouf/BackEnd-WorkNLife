@@ -38,4 +38,12 @@ export class MenuController {
 
     return this.menuService.updateMenu(partner_id, id, dto);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('allmenus')
+  async getAllMenus(@Req() req) {
+    const partner_id = req.user.sub;
+    if (!partner_id) throw new BadRequestException('partner_id requis');
+    return this.menuService.getAllMenus();
+  }
 }
