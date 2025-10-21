@@ -9,6 +9,7 @@ import { PartnersService } from './partner.service';
 import { MenuController } from './menu/menu.controller';
 import { MenuModule } from './menu/menu.module';
 import { CommandesModule } from './commandes/commandes.module';
+import { Menu } from './menu/menu.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User, IdentityVerification]), MenuModule, CommandesModule],

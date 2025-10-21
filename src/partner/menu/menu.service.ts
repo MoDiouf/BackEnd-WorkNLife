@@ -103,4 +103,14 @@ export class MenuService {
 
     return this.menuRepo.save(menu);
   }
+  async getAllMenus() {
+    const menus = await this.menuRepo.find({
+      order: { day: 'ASC', meal_type: 'ASC' },
+    });
+
+    return {
+      message: `Liste de tous les menus (${menus.length})`,
+      menus,
+    };
+  }
 }
