@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PartnerController } from './partner.controller';
 
 
-import { User } from 'src/users/users.entity';
+import { IdentityVerification, User } from 'src/users/users.entity';
 import { PartnerPortalTemplate, PartnerProfile } from './partner.entity';
 import { PartnersService } from './partner.service';
 import { MenuController } from './menu/menu.controller';
@@ -11,9 +11,9 @@ import { MenuModule } from './menu/menu.module';
 import { CommandesModule } from './commandes/commandes.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User]), MenuModule, CommandesModule],
+  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User, IdentityVerification]), MenuModule, CommandesModule],
   controllers: [PartnerController, MenuController],
   providers: [PartnersService],
-  exports: [PartnersService,TypeOrmModule],
+  exports: [PartnersService, TypeOrmModule],
 })
 export class PartnerModule {}

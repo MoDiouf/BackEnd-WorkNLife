@@ -1,4 +1,4 @@
-import { IsDateString, IsDecimal, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsDecimal, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 // partner.dto.ts
 export class CreatePartnerDto {
@@ -11,4 +11,7 @@ export class CreatePartnerDto {
   address?: string;
   description?: string;
   logo_url?: string;
+  @IsString()
+  @IsNotEmpty()
+  admin_key: string;
 }

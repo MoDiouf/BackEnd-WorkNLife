@@ -42,13 +42,12 @@ export class PartnerProfile {
   @PrimaryGeneratedColumn()
   id_partner: number;
 
-  // 🧑‍💼 Relation avec User
-  @ManyToOne(() => User, (user) => user.partnerProfiles, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+ @ManyToOne(() => User, (user) => user.partnerProfiles, {
+  onDelete: 'CASCADE',
+  nullable: true,
+})
+@JoinColumn({ name: 'user_id' })
+user: User;
 
   @OneToMany(() => Commande, (commande) => commande.partner)
 commandes: Commande[];

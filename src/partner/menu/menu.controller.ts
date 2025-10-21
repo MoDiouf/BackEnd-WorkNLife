@@ -18,7 +18,9 @@ export class MenuController {
 
   @UseGuards(JwtAuthGuard)
   @Post('weekly')
-  async createWeekly(@Body() dto: CreateMultiMenuDto) {
+  async createWeekly(@Body() dto: CreateMultiMenuDto,@Req() req) {
+    const partner_id = req.user.partner_id; // Récupérer l'ID du partenaire à partir du token JWT
+    dto.partner_id = partner_id;
     return this.menuService.createWeeklyMenus(dto);
   }
   @UseGuards(JwtAuthGuard)

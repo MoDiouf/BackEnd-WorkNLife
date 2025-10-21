@@ -1,9 +1,9 @@
 // users/users.service.ts
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User ,IdentityVerification } from './users.entity';
-import { CreateDriverVerificationDto, CreateUserDto, DeleteUserDTO } from './users.dto';
+import {  CreateDriverVerificationDto, CreateUserDto, DeleteUserDTO } from './users.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -63,11 +63,23 @@ save(user: User): Promise<User> {
   return this.usersRepository.save(user);
 }
 
-  async createUser(dto: CreateUserDto): Promise<User> {
+    async createUser(dto: CreateUserDto): Promise<User> {
+    // 1️⃣ Vérifier si un utilisateur existe déjà avec cet email
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      // 2️⃣ L'utilisateur existe déjà → on ne crée pas
+      throw new BadRequestException(
+        'Un utilisateur avec cet email existe déjà. Veuillez vous connecter.',
+      );
+    }
+
+    // 3️⃣ Sinon on crée un nouvel utilisateur
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const user = this.usersRepository.create({
-      ...dto,
       full_name: dto.full_name,
       email: dto.email,
       phone: dto.phone || '',
@@ -76,8 +88,12 @@ save(user: User): Promise<User> {
       is_verified: false,
     });
 
-    return this.usersRepository.save(user);
+    return await this.usersRepository.save(user);
   }
+
+  
+
+
 
 async findByEmail(email: string): Promise<User | undefined> {
   const user = await this.usersRepository.findOne({ where: { email } });
