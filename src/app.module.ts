@@ -17,6 +17,9 @@ import { Menu } from './partner/menu/menu.entity';
 import { Commande } from './partner/commandes/commandes.entity';
 import { CarpoolController } from './carpool/carpool.controller';
 import { CarpoolModule } from './carpool/carpool.module';
+import { Carpool, RideRequest } from './carpool/carpool.entity';
+import { CarpoolService } from './carpool/carpool.service';
+
 
 @Module({
   imports: [
@@ -27,7 +30,7 @@ import { CarpoolModule } from './carpool/carpool.module';
       username: 'ameth',         // ton utilisateur
       password: 'Sword@rtonl1ne',
       database: 'WorkNLife',
-      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande], // ajoute toutes tes entités ici
+      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande, Carpool, RideRequest], // ajoute toutes tes entités ici
       synchronize: true,
     }),
     JwtModule.register({
@@ -38,7 +41,8 @@ import { CarpoolModule } from './carpool/carpool.module';
     AuthModule,
     PartnerModule,
     MenuModule,
-    CarpoolModule
+    CarpoolModule,
+    
   ],
   controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController],
   providers: [AppService, AuthService],

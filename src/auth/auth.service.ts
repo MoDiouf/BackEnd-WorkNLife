@@ -46,7 +46,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Compte partenaire introuvable.');
     }
-
+    
     const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) {
       throw new UnauthorizedException('Mot de passe incorrect.');

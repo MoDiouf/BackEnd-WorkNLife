@@ -27,3 +27,4 @@ export class DeleteUserDTO {
 export class CreateDriverVerificationDto{
   document_url:string
 }
+
