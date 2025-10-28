@@ -23,6 +23,7 @@ import { LoisirActivity } from './partner/loisir/loisir.entity';
 import { PaymentModule } from './payment/payment.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/reservation.entity';
+import { HealtyController } from './partner/healty/healty.controller';
 
 
 @Module({
@@ -50,7 +51,7 @@ import { Reservation } from './reservation/reservation.entity';
     ReservationModule,
     
   ],
-  controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController],
+  controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController, HealtyController],
   providers: [AppService, AuthService],
 })
 export class AppModule {}
