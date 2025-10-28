@@ -6,14 +6,13 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { Commande } from './commandes/commandes.entity';
-import { Menu } from './menu/menu.entity';
+import { Reservation } from 'src/reservation/reservation.entity';
 
 // ===============================
-// 🧩 PartnerPortalTemplate
+// PartnerPortalTemplate
 // ===============================
 @Entity('PartnerPortalTemplate')
 export class PartnerPortalTemplate {
@@ -36,56 +35,53 @@ export class PartnerPortalTemplate {
 }
 
 // ===============================
-// 🧩 PartnerProfile
+// PartnerProfile
 // ===============================
 @Entity('PartnerProfile')
 export class PartnerProfile {
   @PrimaryGeneratedColumn()
   id_partner: number;
 
- @ManyToOne(() => User, (user) => user.partnerProfiles, {
-  onDelete: 'CASCADE',
-  nullable: true,
-})
-@JoinColumn({ name: 'user_id' })
-user: User;
+  @ManyToOne(() => User, (user) => user.partnerProfiles, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @OneToMany(() => Commande, (commande) => commande.partner)
-commandes: Commande[];
+  commandes: Commande[];
 
   @Column({ nullable: true })
   user_id: number;
 
-  // 🏢 Nom du partenaire
   @Column({ type: 'varchar', length: 100, nullable: true })
   partner_name: string;
 
-  // 🔗 Type de partenaire (clé étrangère vers PartnerPortalTemplate)
+  // 🔗 Relation vers PartnerPortalTemplate
   @ManyToOne(() => PartnerPortalTemplate, (template) => template.profiles, {
     eager: true,
     nullable: true,
   })
-
-
   @JoinColumn({ name: 'partner_type_id' })
   partner_type: PartnerPortalTemplate;
 
   @Column({ nullable: true })
   partner_type_id: number;
 
-  // 📍 Adresse
+  // Relation inverse avec Reservation
+  @OneToMany(() => Reservation, (reservation) => reservation.partner)
+  reservations: Reservation[];
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string;
 
-  // 📝 Description
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  // 🖼️ Logo
   @Column({ type: 'varchar', length: 255, nullable: true })
   logo_url: string;
 
-  // 🕓 Date de création
   @CreateDateColumn({ type: 'datetime', nullable: true })
   created_at: Date;
 }

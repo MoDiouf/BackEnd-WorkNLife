@@ -1,6 +1,7 @@
 // users/users.entity.ts
 import { Commande } from 'src/partner/commandes/commandes.entity';
 import { PartnerProfile } from 'src/partner/partner.entity';
+import { Reservation } from 'src/reservation/reservation.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity('User')
@@ -40,6 +41,9 @@ commandes: Commande[];
    // 🔹 Relation OneToMany vers PartnerProfile
   @OneToMany(() => PartnerProfile, (profile) => profile.user)
   partnerProfiles: PartnerProfile[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+reservations: Reservation[];
 }
 
 @Entity('IdentityVerification')
