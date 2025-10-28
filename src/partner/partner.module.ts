@@ -10,10 +10,12 @@ import { MenuController } from './menu/menu.controller';
 import { MenuModule } from './menu/menu.module';
 import { CommandesModule } from './commandes/commandes.module';
 import { Menu } from './menu/menu.entity';
+import { LoisirController } from './loisir/loisir.controller';
+import { LoisirModule } from './loisir/loisir.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User, IdentityVerification]), MenuModule, CommandesModule],
-  controllers: [PartnerController, MenuController],
+  imports: [TypeOrmModule.forFeature([PartnerProfile, PartnerPortalTemplate, User, IdentityVerification]), MenuModule, CommandesModule, LoisirModule],
+  controllers: [PartnerController, MenuController, LoisirController],
   providers: [PartnersService],
   exports: [PartnersService, TypeOrmModule],
 })
