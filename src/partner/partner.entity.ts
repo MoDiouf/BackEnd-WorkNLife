@@ -10,6 +10,7 @@ import {
 import { User } from 'src/users/users.entity';
 import { Commande } from './commandes/commandes.entity';
 import { Reservation } from 'src/reservation/reservation.entity';
+import { HealthyActivity } from './healty/healty.entity';
 
 // ===============================
 // PartnerPortalTemplate
@@ -52,6 +53,9 @@ export class PartnerProfile {
   @OneToMany(() => Commande, (commande) => commande.partner)
   commandes: Commande[];
 
+  @OneToMany(() => HealthyActivity, (activity) => activity.partner)
+  healthyActivities: HealthyActivity[];
+
   @Column({ nullable: true })
   user_id: number;
 
@@ -84,4 +88,12 @@ export class PartnerProfile {
 
   @CreateDateColumn({ type: 'datetime', nullable: true })
   created_at: Date;
+
+    // PartnerProfile.entity.ts
+@Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+price_per_session: number;
+
+@Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+price_per_month: number;
+
 }

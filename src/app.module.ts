@@ -24,6 +24,7 @@ import { PaymentModule } from './payment/payment.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/reservation.entity';
 import { HealtyController } from './partner/healty/healty.controller';
+import { HealthyActivity } from './partner/healty/healty.entity';
 
 
 @Module({
@@ -35,7 +36,7 @@ import { HealtyController } from './partner/healty/healty.controller';
       username: 'ameth',         // ton utilisateur
       password: 'Sword@rtonl1ne',
       database: 'WorkNLife',
-      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande, Carpool, RideRequest,LoisirActivity, Reservation], // ajoute toutes tes entités ici
+      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande, Carpool, RideRequest,LoisirActivity, Reservation, HealthyActivity], // ajoute toutes tes entités ici
       synchronize: true,
     }),
     JwtModule.register({
@@ -51,7 +52,7 @@ import { HealtyController } from './partner/healty/healty.controller';
     ReservationModule,
     
   ],
-  controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController, HealtyController],
+  controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController],
   providers: [AppService, AuthService],
 })
 export class AppModule {}
