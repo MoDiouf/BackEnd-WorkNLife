@@ -30,15 +30,27 @@ import { HealthyActivity } from './partner/healty/healty.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',         // ton host MySQL
-      port: 3306,                // port MySQL
-      username: 'ameth',         // ton utilisateur
-      password: 'Sword@rtonl1ne',
-      database: 'WorkNLife',
-      entities: [User, IdentityVerification, PartnerPortalTemplate, PartnerProfile, Menu, Commande, Carpool, RideRequest,LoisirActivity, Reservation, HealthyActivity], // ajoute toutes tes entités ici
-      synchronize: true,
-    }),
+  type: 'mysql',
+  host: process.env.DB_HOST || 'localhost',  // <-- ici
+  port: Number(process.env.DB_PORT) || 3306,
+  username: process.env.DB_USER || 'ameth',
+  password: process.env.DB_PASSWORD || 'Sword@rtonl1ne',
+  database: process.env.DB_NAME || 'WorkNLife',
+  entities: [
+    User,
+    IdentityVerification,
+    PartnerPortalTemplate,
+    PartnerProfile,
+    Menu,
+    Commande,
+    Carpool,
+    RideRequest,
+    LoisirActivity,
+    Reservation,
+    HealthyActivity
+  ],
+  synchronize: true,
+}),
     JwtModule.register({
       secret: 'SoloSaasMHD', // mets une vraie clé secrète ici
       signOptions: { expiresIn: '1h' },
