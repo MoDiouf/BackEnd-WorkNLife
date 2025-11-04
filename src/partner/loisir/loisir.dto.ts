@@ -24,7 +24,7 @@ export class CreateLoisirActivityDto {
   category: 'jeux_video' | 'parc_attraction' | 'cinema' | 'bowling' | 'escape_game' | 'autre';
 
   @IsOptional()
-  @IsEnum(['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'])
+  @IsEnum(['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche','tous_les_jours'])
   day?: string;
 
   @IsOptional()
@@ -44,4 +44,17 @@ export class DeleteLoisirActivityDto {
   @ArrayNotEmpty()
   @IsNumber({}, { each: true })
   ids: number[]; // pour supprimer une ou plusieurs activités par id
+}
+export class LoisirDTO{
+  @IsOptional()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  adresse?: string;
 }

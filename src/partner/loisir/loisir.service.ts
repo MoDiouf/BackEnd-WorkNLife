@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { PartnerProfile } from '../partner.entity';
 import { LoisirActivity } from './loisir.entity';
-import { CreateLoisirActivityDto, UpdateLoisirActivityDto } from './loisir.dto';
+import { CreateLoisirActivityDto, LoisirDTO, UpdateLoisirActivityDto } from './loisir.dto';
 
 @Injectable()
 export class LoisirService {
@@ -56,4 +56,15 @@ export class LoisirService {
     await this.activityRepo.remove(activities);
     return { deleted: activities.length };
   }
+  async updateBoutik(partnerId: number, loisir: LoisirDTO): Promise<PartnerProfile> {
+    const partner = await this.partnerRepo.findOne({ where: { id_partner: partnerId } });
+    if (!partner) throw new NotFoundException('Partner not found');
+
+    partner.partner_name = loisir.name ?? partner.partner_name;
+    partner.description = loisir.description ?? partner.description;
+    partner.address = loisir.adresse ?? partner.address;
+
+    return await this.partnerRepo.save(partner);
+  }
 }
+
