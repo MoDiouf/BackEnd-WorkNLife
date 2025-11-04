@@ -83,6 +83,7 @@ export class AuthService {
         partner_type: partner.partner_type.partner_type,
         logo_url: partner.logo_url,
         address: partner.address,
+        description: partner.description,
       },
     };
   }
