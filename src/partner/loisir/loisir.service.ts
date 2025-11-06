@@ -46,8 +46,8 @@ export class LoisirService {
   }
 
   // --- Suppression d’une ou plusieurs activités
-  async deleteActivities(partnerId: number, ids: number[]): Promise<{ deleted: number }> {
-    const activities = await this.activityRepo.findByIds(ids);
+  async deleteActivities(partnerId: number, ids: number): Promise<{ deleted: number }> {
+    const activities = await this.activityRepo.findByIds([{ id_activity: ids }]);
 
     if (!activities.length) throw new NotFoundException('No activities found');
     const unauthorized = activities.find((a) => a.partner_id !== partnerId);
@@ -56,6 +56,7 @@ export class LoisirService {
     await this.activityRepo.remove(activities);
     return { deleted: activities.length };
   }
+  
   async updateBoutik(partnerId: number, loisir: LoisirDTO): Promise<PartnerProfile> {
     const partner = await this.partnerRepo.findOne({ where: { id_partner: partnerId } });
     if (!partner) throw new NotFoundException('Partner not found');
@@ -65,6 +66,10 @@ export class LoisirService {
     partner.address = loisir.adresse ?? partner.address;
 
     return await this.partnerRepo.save(partner);
+  }
+
+  getActivitiesByPartner(partnerId: number): Promise<LoisirActivity[]> {
+    return this.activityRepo.find({ where: { partner_id: partnerId } });
   }
 }
 

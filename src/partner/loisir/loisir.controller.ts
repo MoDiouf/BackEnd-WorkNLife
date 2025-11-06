@@ -2,6 +2,9 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
   Req,
@@ -35,16 +38,20 @@ export class LoisirController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get()
+  async getActivities(@Req() req): Promise<LoisirActivity[]> {
+    const partnerId = req.user.partner_id;
+    return await this.loisirService.getActivitiesByPartner(partnerId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('update-boutik')
   async updateBoutikActivities(
     @Req() req,
     @Body() loisir: LoisirDTO,
   ): Promise<any> {
     const partnerId = req.user.partner_id; // Récupérer l'ID du partenaire à partir du token JWT
-    return await this.loisirService.updateBoutik(
-      partnerId,
-      loisir,
-    );
+    return await this.loisirService.updateBoutik(partnerId, loisir);
   }
   // 🔹 Mettre à jour une activité
   @UseGuards(JwtAuthGuard)
@@ -56,15 +63,12 @@ export class LoisirController {
     const partnerId = req.user.partner_id;
     return this.loisirService.updateActivity(partnerId, dto);
   }
-
+  
   // 🔹 Supprimer une ou plusieurs activités
   @UseGuards(JwtAuthGuard)
-  @Delete()
-  async deleteActivities(
-    @Req() req,
-    @Body() dto: DeleteLoisirActivityDto,
-  ): Promise<{ deleted: number }> {
+  @Delete(':id')
+  async deleteActivity(@Req() req, @Param('id', ParseIntPipe) id: number) {
     const partnerId = req.user.partner_id;
-    return this.loisirService.deleteActivities(partnerId, dto.ids);
+    return this.loisirService.deleteActivities(partnerId, id);
   }
 }

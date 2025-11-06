@@ -43,7 +43,7 @@ export class LoisirActivity {
 
   @Column({
     type: 'enum',
-    enum: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+    enum: ['tous_les_jours', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
     nullable: true,
   })
   day?: string;
