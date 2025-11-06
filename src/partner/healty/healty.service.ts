@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PartnerProfile } from 'src/partner/partner.entity';
 import { PartnerPortalTemplate } from 'src/partner/partner.entity';
 import { HealthyActivity } from './healty.entity';
-import { CreateHealthyActivityDto, UpdateHealthyShopPriceDto } from './healty.dto';
+import { CreateHealthyActivityDto, UpdateHealthyActivityDto, UpdateHealthyBoutikDto, UpdateHealthyShopPriceDto } from './healty.dto';
 @Injectable()
 export class HealtyService {
   constructor(
@@ -42,5 +42,31 @@ async updateShopPrice(partnerId: number, dto: UpdateHealthyShopPriceDto) {
     });
 
     return await this.activityRepo.save(activity);
+  }
+  async updateHealthyBoutik(partnerId: number, dto: UpdateHealthyBoutikDto): Promise<PartnerProfile> {
+    const partner = await this.partnerRepo.findOne({ where: { id_partner: partnerId } });
+    if (!partner) throw new NotFoundException('Boutique introuvable');
+
+    Object.assign(partner, dto);
+    return await this.partnerRepo.save(partner);
+  }
+  async getActivitiesByPartner(partnerId: number): Promise<HealthyActivity[]> {
+    return await this.activityRepo.find({
+      where: { partner: { id_partner: partnerId } },
+    });
+  }
+  async updateActivity(activityId: number, dto: UpdateHealthyActivityDto): Promise<HealthyActivity> {
+    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId } });
+    if (!activity) throw new NotFoundException('Activité introuvable');
+
+    Object.assign(activity, dto);
+    return await this.activityRepo.save(activity);
+  }
+  async deleteActivity(activityId: number): Promise<{ message: string }> {
+    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId } });
+    if (!activity) throw new NotFoundException('Activité introuvable');
+
+    await this.activityRepo.remove(activity);
+    return { message: 'Activité supprimée avec succès' };
   }
 }

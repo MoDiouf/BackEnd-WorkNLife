@@ -24,7 +24,7 @@ export class CreateLoisirActivityDto {
   category: 'jeux_video' | 'parc_attraction' | 'cinema' | 'bowling' | 'escape_game' | 'autre';
 
   @IsOptional()
-  @IsEnum(['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche','tous_les_jours'])
+  @IsEnum(['tous_les_jours', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'])
   day?: string;
 
   @IsOptional()
@@ -40,10 +40,9 @@ export class UpdateLoisirActivityDto extends PartialType(CreateLoisirActivityDto
   id_activity: number; // on doit savoir quelle activité modifier
 }
 export class DeleteLoisirActivityDto {
-  @IsArray()
   @ArrayNotEmpty()
   @IsNumber({}, { each: true })
-  ids: number[]; // pour supprimer une ou plusieurs activités par id
+  ids: number; // pour supprimer une ou plusieurs activités par id
 }
 export class LoisirDTO{
   @IsOptional()
