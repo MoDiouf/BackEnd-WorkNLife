@@ -52,14 +52,17 @@ export class HealtyController {
   async updateActivity(
     @Param('id') activityId: number,
     @Body() dto: UpdateHealthyActivityDto,
+    @Req() req,
   ): Promise<HealthyActivity> {
-    return this.healthyService.updateActivity(activityId, dto);
+    const partnerId = req.user.partner_id;
+    return this.healthyService.updateActivity(activityId, dto, partnerId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('activity/delete/:id')
-  async deleteActivity(@Param('id') activityId: number): Promise<{ message: string }> {
-    return this.healthyService.deleteActivity(activityId);
+  async deleteActivity(@Param('id') activityId: number, @Req() req): Promise<{ message: string }> {
+    const partnerId = req.user.partner_id;
+    return this.healthyService.deleteActivity(activityId, partnerId);
   }
   
 }

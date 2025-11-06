@@ -55,15 +55,15 @@ async updateShopPrice(partnerId: number, dto: UpdateHealthyShopPriceDto) {
       where: { partner: { id_partner: partnerId } },
     });
   }
-  async updateActivity(activityId: number, dto: UpdateHealthyActivityDto): Promise<HealthyActivity> {
-    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId } });
+  async updateActivity(activityId: number, dto: UpdateHealthyActivityDto, partner_id: number): Promise<HealthyActivity> {
+    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId, partner: { id_partner: partner_id } } });
     if (!activity) throw new NotFoundException('Activité introuvable');
 
     Object.assign(activity, dto);
     return await this.activityRepo.save(activity);
   }
-  async deleteActivity(activityId: number): Promise<{ message: string }> {
-    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId } });
+  async deleteActivity(activityId: number, partner_id: number): Promise<{ message: string }> {
+    const activity = await this.activityRepo.findOne({ where: { id_activity: activityId, partner: { id_partner: partner_id } } });
     if (!activity) throw new NotFoundException('Activité introuvable');
 
     await this.activityRepo.remove(activity);
