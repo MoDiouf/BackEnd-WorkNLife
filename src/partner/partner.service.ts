@@ -11,6 +11,7 @@ import { PartnerProfile, PartnerPortalTemplate } from './partner.entity';
 import { IdentityVerification, User } from 'src/users/users.entity';
 import * as bcrypt from 'bcrypt';
 import { Menu } from './menu/menu.entity';
+import { UpdatePartnerSettingsDto } from './partner.dto';
 
 @Injectable()
 export class PartnersService {
@@ -217,6 +218,34 @@ export class PartnersService {
   return {
     message: `✅ Demande de vérification ${action === 'accept' ? 'acceptée' : 'rejetée'} avec succès`,
     request,
+  };
+}
+
+  async updatePartnerSettings(partner_id: number, settings: UpdatePartnerSettingsDto) {
+  const partner = await this.partnerRepo.findOne({
+    where: { id_partner: partner_id },
+    relations: ['user'],
+  });
+  if (!partner) {
+    throw new NotFoundException(`Partenaire avec l'id ${partner_id} introuvable ❌`);
+  }
+
+  // Mise à jour des champs partenaire
+  if (settings.service !== undefined) partner.service = settings.service;
+  if (settings.name_partner !== undefined) partner.partner_name = settings.name_partner;
+
+  // Mise à jour des champs user
+  if (partner.user) {
+    if (settings.numero !== undefined) partner.user.phone = settings.numero;
+    if (settings.email !== undefined) partner.user.email = settings.email;
+    await this.usersRepo.save(partner.user);
+  }
+
+  await this.partnerRepo.save(partner);
+
+  return {
+    message: 'Paramètres du partenaire mis à jour avec succès ✅',
+    partner,
   };
 }
 

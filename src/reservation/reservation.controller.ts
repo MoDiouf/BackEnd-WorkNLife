@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './reservation.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
@@ -16,7 +16,7 @@ export class ReservationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('forpartner')
+  @Get('forpartner')
   async getPartnerReservations(@Req() req) {
     const partner_id = req.user.partner_id;
     return this.reservationService.getPartnerReservations(partner_id);

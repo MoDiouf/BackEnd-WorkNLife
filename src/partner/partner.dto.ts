@@ -15,3 +15,10 @@ export class CreatePartnerDto {
   @IsNotEmpty()
   admin_key: string;
 }
+export class UpdatePartnerSettingsDto {
+  service: string;
+  name_partner?: string;
+  numero?: string;
+  email?: string;
+}
+
