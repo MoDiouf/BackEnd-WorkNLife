@@ -84,7 +84,7 @@ export class PartnersService {
 
         return {
           message: 'Administrateur créé avec succès ✅',
-          user: admin,
+          partnerProfile
         };
       }
     }
