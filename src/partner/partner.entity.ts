@@ -96,4 +96,6 @@ price_per_session: number;
 @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
 price_per_month: number;
 
+@Column({ type: 'text', nullable: true })
+service : string
 }

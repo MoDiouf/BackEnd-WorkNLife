@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 
-import { CreatePartnerDto } from './partner.dto';
+import { CreatePartnerDto, UpdatePartnerSettingsDto } from './partner.dto';
 import { PartnersService } from './partner.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
@@ -50,4 +50,14 @@ export class PartnerController {
       body.action,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+@Post('settings')
+async updatePartnerSettings(
+  @Req() req,
+  @Body() settings: UpdatePartnerSettingsDto
+) {
+  const partner_id = req.user.partner_id;
+  return this.partnerService.updatePartnerSettings(partner_id, settings);
+}
 }

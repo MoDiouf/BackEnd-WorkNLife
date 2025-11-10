@@ -76,6 +76,7 @@ export class AuthService {
         id_user: user.id_user,
         full_name: user.full_name,
         email: user.email,
+        phone: user.phone,
       },
       partner: {
         id_partner: partner.id_partner,
@@ -84,6 +85,7 @@ export class AuthService {
         logo_url: partner.logo_url,
         address: partner.address,
         description: partner.description,
+        service: partner.service,
       },
     };
   }
