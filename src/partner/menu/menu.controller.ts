@@ -8,6 +8,7 @@ import {
   BadRequestException,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
 import { CreateMultiMenuDto, UpdateMenuDto } from './menu.dto';
@@ -37,6 +38,15 @@ export class MenuController {
     if (!partner_id) throw new BadRequestException('partner_id requis');
 
     return this.menuService.updateMenu(partner_id, id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteMenu(@Param('id') id: number, @Req() req) {
+    const partner_id = req.user.partner_id;
+    if (!partner_id) throw new BadRequestException('partner_id requis');
+
+    return this.menuService.deleteMenu(partner_id, id);
   }
 
   @UseGuards(JwtAuthGuard)

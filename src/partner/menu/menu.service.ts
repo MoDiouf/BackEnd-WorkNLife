@@ -113,4 +113,12 @@ export class MenuService {
       menus,
     };
   }
+  async deleteMenu(partner_id: number, id_menu: number) {
+    const menu = await this.menuRepo.findOne({ where: { id_menu, partner_id } });
+    if (!menu) throw new NotFoundException('Menu non trouvé ou pas accessible');
+
+    await this.menuRepo.remove(menu);
+
+    return { message: 'Menu supprimé avec succès' };
+  }
 }
