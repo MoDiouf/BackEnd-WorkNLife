@@ -4,7 +4,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: "https://work-n-life-front-eo9f3yyvp-modioufs-projects.vercel.app", // ou le port de ton front React
+    origin: [
+      'http://localhost:8080',
+      'https://work-n-life-front-eo9f3yyvp-modioufs-projects.vercel.app'
+    ], // ou le port de ton front React
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   });
