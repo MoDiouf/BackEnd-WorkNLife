@@ -26,8 +26,6 @@ export class PartnersService {
     private usersRepo: Repository<User>,
     @InjectRepository(IdentityVerification)
     private verificationRepo: Repository<IdentityVerification>,
-
-    
   ) {}
 
   async createPartner(dto: {
@@ -71,7 +69,6 @@ export class PartnersService {
           where: { partner_type: dto.partner_type },
         });
 
-        
         // Crée le profile partenaire
         const partnerProfile = this.partnerRepo.create({
           user: admin, // associe le User
@@ -85,7 +82,7 @@ export class PartnersService {
 
         return {
           message: 'Administrateur créé avec succès ✅',
-          partnerProfile
+          partnerProfile,
         };
       }
     }
@@ -103,17 +100,25 @@ export class PartnersService {
     });
     await this.usersRepo.save(user);
 
-    // Récupère le template
-    const template = await this.templateRepo.findOne({
+    // Récupère ou crée le template
+    let template = await this.templateRepo.findOne({
       where: { partner_type: dto.partner_type },
     });
-    console.log(template);
+
+    if (!template) {
+      template = this.templateRepo.create({
+        partner_type: dto.partner_type,
+        template_url: '', // optionnel
+      });
+      await this.templateRepo.save(template);
+    }
 
     // Crée le profile partenaire
     const partnerProfile = this.partnerRepo.create({
       user, // associe le User
       partner_name: dto.partner_name,
-      partner_type: template || undefined,
+      partner_type: template, // objet complet pour la relation
+      partner_type_id: template.id_template, // clé étrangère correctement renseignée
       address: dto.address,
       description: dto.description,
       logo_url: dto.logo_url,
@@ -128,125 +133,148 @@ export class PartnersService {
   }
 
   async getAllUsers(id_partner: number) {
-  // 🔹 Étape 1 : Récupère le partenaire et son type
-  const partner = await this.partnerRepo.findOne({
-    where: { id_partner },
-    relations: ['partner_type'], // jointure avec PartnerPortalTemplate
-  });
+    // 🔹 Étape 1 : Récupère le partenaire et son type
+    const partner = await this.partnerRepo.findOne({
+      where: { id_partner },
+      relations: ['partner_type'], // jointure avec PartnerPortalTemplate
+    });
 
-  if (!partner) {
-    throw new NotFoundException(`Partenaire avec l'id ${id_partner} introuvable ❌`);
+    if (!partner) {
+      throw new NotFoundException(
+        `Partenaire avec l'id ${id_partner} introuvable ❌`,
+      );
+    }
+
+    // 🔹 Étape 2 : Vérifie s'il est de type admin
+    if (partner.partner_type.partner_type !== 'admin') {
+      throw new ForbiddenException(
+        'Accès refusé ❌ — réservé aux administrateurs.',
+      );
+    }
+
+    // 🔹 Étape 3 : Si c'est un admin, renvoie tous les utilisateurs
+    const users = await this.usersRepo.find({
+      relations: ['partnerProfiles'], // si tu veux inclure les partenaires liés
+      order: { id_user: 'DESC' },
+    });
+
+    return {
+      message: `✅ Accès autorisé — ${users.length} utilisateur(s) trouvé(s)`,
+      users,
+    };
   }
-
-  // 🔹 Étape 2 : Vérifie s'il est de type admin
-  if (partner.partner_type.partner_type !== 'admin') {
-    throw new ForbiddenException("Accès refusé ❌ — réservé aux administrateurs.");
-  }
-
-  // 🔹 Étape 3 : Si c'est un admin, renvoie tous les utilisateurs
-  const users = await this.usersRepo.find({
-    relations: ['partnerProfiles'], // si tu veux inclure les partenaires liés
-    order: { id_user: 'DESC' },
-  });
-
-  return {
-    message: `✅ Accès autorisé — ${users.length} utilisateur(s) trouvé(s)`,
-    users,
-  };
-}
   async getDriverVerificationRequests(id_partner: number) {
-  // 🔹 Vérifier que l'utilisateur est admin
-  const partner = await this.partnerRepo.findOne({
-    where: { id_partner },
-    relations: ['partner_type'], // jointure avec PartnerPortalTemplate
-  });
+    // 🔹 Vérifier que l'utilisateur est admin
+    const partner = await this.partnerRepo.findOne({
+      where: { id_partner },
+      relations: ['partner_type'], // jointure avec PartnerPortalTemplate
+    });
 
-  if (!partner || partner.partner_type.partner_type !== 'admin') {
-    throw new ForbiddenException("Accès refusé ❌ — réservé aux administrateurs.");
+    if (!partner || partner.partner_type.partner_type !== 'admin') {
+      throw new ForbiddenException(
+        'Accès refusé ❌ — réservé aux administrateurs.',
+      );
+    }
+
+    // 🔹 Récupérer les demandes de vérification driver
+    const requests = await this.verificationRepo.find({
+      where: { role: 'driver', status: 'en_attente' },
+      relations: ['user'],
+      order: { id_verif: 'DESC' },
+    });
+
+    return {
+      message: `✅ ${requests.length} demande(s) de vérification en attente pour les drivers`,
+      requests,
+    };
   }
 
-  // 🔹 Récupérer les demandes de vérification driver
-  const requests = await this.verificationRepo.find({
-    where: { role: 'driver', status: 'en_attente' },
-    relations: ['user'],
-    order: { id_verif: 'DESC' },
-  });
+  async updateDriverVerificationStatus(
+    id_partner: number,
+    id_verif: number,
+    action: 'accept' | 'reject',
+  ) {
+    // 🔹 Vérifier que l'utilisateur est admin
+    const partner = await this.partnerRepo.findOne({
+      where: { id_partner },
+      relations: ['partner_type'], // jointure avec PartnerPortalTemplate
+    });
+    if (!partner || partner.partner_type.partner_type !== 'admin') {
+      throw new ForbiddenException(
+        'Accès refusé ❌ — réservé aux administrateurs.',
+      );
+    }
 
-  return {
-    message: `✅ ${requests.length} demande(s) de vérification en attente pour les drivers`,
-    requests,
-  };
-}
+    // 🔹 Récupérer la demande de vérification
+    const request = await this.verificationRepo.findOne({
+      where: { id_verif },
+      relations: ['user'],
+    });
 
-  async updateDriverVerificationStatus(id_partner: number, id_verif: number, action: 'accept' | 'reject') {
-  // 🔹 Vérifier que l'utilisateur est admin
-  const partner = await this.partnerRepo.findOne({
-    where: { id_partner },
-    relations: ['partner_type'], // jointure avec PartnerPortalTemplate
-  });
-  if (!partner || partner.partner_type.partner_type !== 'admin') {
-    throw new ForbiddenException("Accès refusé ❌ — réservé aux administrateurs.");
+    if (!request) {
+      throw new NotFoundException(
+        `Demande de vérification avec id ${id_verif} introuvable ❌`,
+      );
+    }
+
+    if (request.role !== 'driver') {
+      throw new BadRequestException(
+        "Cette demande n'est pas pour devenir driver",
+      );
+    }
+
+    // 🔹 Mettre à jour le status
+    if (action === 'accept') {
+      request.status = 'valide';
+    } else if (action === 'reject') {
+      request.status = 'rejete';
+    } else {
+      throw new BadRequestException(
+        "Action invalide. Utilisez 'accept' ou 'reject'",
+      );
+    }
+
+    request.verified_at = new Date();
+
+    await this.verificationRepo.save(request);
+
+    return {
+      message: `✅ Demande de vérification ${action === 'accept' ? 'acceptée' : 'rejetée'} avec succès`,
+      request,
+    };
   }
 
-  // 🔹 Récupérer la demande de vérification
-  const request = await this.verificationRepo.findOne({
-    where: { id_verif },
-    relations: ['user'],
-  });
+  async updatePartnerSettings(
+    partner_id: number,
+    settings: UpdatePartnerSettingsDto,
+  ) {
+    const partner = await this.partnerRepo.findOne({
+      where: { id_partner: partner_id },
+      relations: ['user'],
+    });
+    if (!partner) {
+      throw new NotFoundException(
+        `Partenaire avec l'id ${partner_id} introuvable ❌`,
+      );
+    }
 
-  if (!request) {
-    throw new NotFoundException(`Demande de vérification avec id ${id_verif} introuvable ❌`);
+    // Mise à jour des champs partenaire
+    if (settings.service !== undefined) partner.service = settings.service;
+    if (settings.name_partner !== undefined)
+      partner.partner_name = settings.name_partner;
+
+    // Mise à jour des champs user
+    if (partner.user) {
+      if (settings.numero !== undefined) partner.user.phone = settings.numero;
+      if (settings.email !== undefined) partner.user.email = settings.email;
+      await this.usersRepo.save(partner.user);
+    }
+
+    await this.partnerRepo.save(partner);
+
+    return {
+      message: 'Paramètres du partenaire mis à jour avec succès ✅',
+      partner,
+    };
   }
-
-  if (request.role !== 'driver') {
-    throw new BadRequestException("Cette demande n'est pas pour devenir driver");
-  }
-
-  // 🔹 Mettre à jour le status
-  if (action === 'accept') {
-    request.status = 'valide';
-  } else if (action === 'reject') {
-    request.status = 'rejete';
-  } else {
-    throw new BadRequestException("Action invalide. Utilisez 'accept' ou 'reject'");
-  }
-
-  request.verified_at = new Date();
-
-  await this.verificationRepo.save(request);
-
-  return {
-    message: `✅ Demande de vérification ${action === 'accept' ? 'acceptée' : 'rejetée'} avec succès`,
-    request,
-  };
-}
-
-  async updatePartnerSettings(partner_id: number, settings: UpdatePartnerSettingsDto) {
-  const partner = await this.partnerRepo.findOne({
-    where: { id_partner: partner_id },
-    relations: ['user'],
-  });
-  if (!partner) {
-    throw new NotFoundException(`Partenaire avec l'id ${partner_id} introuvable ❌`);
-  }
-
-  // Mise à jour des champs partenaire
-  if (settings.service !== undefined) partner.service = settings.service;
-  if (settings.name_partner !== undefined) partner.partner_name = settings.name_partner;
-
-  // Mise à jour des champs user
-  if (partner.user) {
-    if (settings.numero !== undefined) partner.user.phone = settings.numero;
-    if (settings.email !== undefined) partner.user.email = settings.email;
-    await this.usersRepo.save(partner.user);
-  }
-
-  await this.partnerRepo.save(partner);
-
-  return {
-    message: 'Paramètres du partenaire mis à jour avec succès ✅',
-    partner,
-  };
-}
-
 }
