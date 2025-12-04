@@ -58,12 +58,18 @@ export class IdentityVerification {
   @Column({ type: 'enum', enum: ['driver', 'standard'] })
   role: 'driver' | 'standard';
 
-  @Column({ nullable: true })
-  document_url: string;
+  @Column({ type: 'longblob', nullable: true }) // ou 'longblob' si MySQL
+  document: Buffer; // le fichier lui-même
 
   @Column({ type: 'enum', enum: ['en_attente', 'valide', 'rejete'], default: 'en_attente' })
   status: 'en_attente' | 'valide' | 'rejete';
 
   @Column({ nullable: true })
   verified_at: Date;
+
+  @Column({ nullable: true })
+  document_name: string; // pour stocker le nom original
+
+  @Column({ nullable: true })
+  document_type: string; // pour stocker le mimeType
 }

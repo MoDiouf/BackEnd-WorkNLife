@@ -28,7 +28,11 @@ export class UsersService {
 findById(id: number): Promise<User | null> {
   return this.usersRepository.findOne({ where: { id_user: id } });
 }
-async requestDriverVerification(userId: number, dto: CreateDriverVerificationDto) {
+async requestDriverVerification(
+  userId: number,
+  dto: CreateDriverVerificationDto,
+  file: Express.Multer.File
+) {
   const currentUser = await this.usersRepository.findOne({ where: { id_user: userId } });
 
   if (!currentUser) {
@@ -52,11 +56,14 @@ async requestDriverVerification(userId: number, dto: CreateDriverVerificationDto
     user: currentUser,
     role: 'driver',
     status: 'en_attente',
-    document_url: dto.document_url,
+    document: file.buffer, // fichier en binaire
+    document_name: file.originalname,
+    document_type: file.mimetype,
   });
 
   return await this.verificationRepo.save(verification);
 }
+
 
 
 save(user: User): Promise<User> {

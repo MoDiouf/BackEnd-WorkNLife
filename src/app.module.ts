@@ -25,17 +25,19 @@ import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/reservation.entity';
 import { HealtyController } from './partner/healty/healty.controller';
 import { HealthyActivity } from './partner/healty/healty.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
   type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',  // <-- ici
-  port: Number(process.env.DB_PORT) || 3306,
-  username: process.env.DB_USER || 'ameth',
-  password: process.env.DB_PASSWORD || 'Sword@rtonl1ne',
-  database: process.env.DB_NAME || 'WorkNLife',
+  host: 'localhost',  
+  port:  3306,
+  username:'ameth',
+  password: 'Sword@rtonl1ne',
+  database: 'WorkNLife',
   entities: [
     User,
     IdentityVerification,
@@ -51,6 +53,9 @@ import { HealthyActivity } from './partner/healty/healty.entity';
   ],
   synchronize: true,
 }),
+MulterModule.register({
+      storage: memoryStorage(),
+    }),
     JwtModule.register({
       secret: 'SoloSaasMHD', // mets une vraie clé secrète ici
       signOptions: { expiresIn: '1h' },

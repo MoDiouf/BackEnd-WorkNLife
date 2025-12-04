@@ -105,9 +105,11 @@ export class MenuService {
   }
   async getAllMenus() {
     const menus = await this.menuRepo.find({
+      relations: ['partner'],
       order: { day: 'ASC', meal_type: 'ASC' },
     });
 
+    
     return {
       message: `Liste de tous les menus (${menus.length})`,
       menus,

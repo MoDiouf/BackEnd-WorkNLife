@@ -51,9 +51,8 @@ export class MenuController {
 
   @UseGuards(JwtAuthGuard)
   @Get('allmenus')
-  async getAllMenus(@Req() req) {
-    const partner_id = req.user.sub;
-    if (!partner_id) throw new BadRequestException('partner_id requis');
+  async getAllMenus() {
+    console.log("Called")
     return this.menuService.getAllMenus();
   }
 }

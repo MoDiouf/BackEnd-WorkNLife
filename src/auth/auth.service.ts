@@ -32,15 +32,23 @@ export class AuthService {
     return user;
   }
 
-  // 🧾 Connexion standard (mobile, etc.)
+  // Generation token mobil et web
   async login(user: any) {
     const payload = { email: user.email, sub: user.id_user, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  const accessTokenDefault = await this.jwtService.signAsync(payload);
+
+  const accessTokenMobile = await this.jwtService.signAsync(payload, {
+    secret: "SoloSaasMHD",
+    expiresIn: '30d',  
+  });
+
+  return {
+    access_token: accessTokenDefault,
+    mobile_token: accessTokenMobile,
+  };
   }
 
-  // 🧾 Connexion pour le portail partenaire
+  // Connexion pour le portail partenaire
   async loginPartner(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {

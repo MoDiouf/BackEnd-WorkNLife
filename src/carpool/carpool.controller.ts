@@ -12,15 +12,15 @@ export class CarpoolController {
 async createCarpool(@Body() dto: CreateCarpoolDto, @Req() req) {
   const driver_id = req.user.sub;
 
-  // Vérifier si l'utilisateur est validé comme driver
-  const verification = await this.carpoolService.isDriverVerified(driver_id);
-  if (!verification) {
-    throw new ForbiddenException('Vous devez avoir un compte conducteur validé pour créer un trajet');
-  }
-
   return this.carpoolService.createCarpool({ ...dto, driver_id });
 }
 
+@Get('check-permission')
+async isValide(@Req() req){
+  const driver_id = req.user.sub;
+  const verification = await this.carpoolService.isDriverVerified(driver_id);
+  return { allowed: verification };
+}
 
   // ✅ Récupérer tous les trajets disponibles
   @Get()
