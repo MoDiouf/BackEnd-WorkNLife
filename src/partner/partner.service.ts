@@ -12,6 +12,7 @@ import { IdentityVerification, User } from 'src/users/users.entity';
 import * as bcrypt from 'bcrypt';
 import { Menu } from './menu/menu.entity';
 import { UpdatePartnerSettingsDto } from './partner.dto';
+import { log } from 'console';
 
 @Injectable()
 export class PartnersService {
@@ -65,10 +66,17 @@ export class PartnersService {
           is_verified: false, // partenaire est toujours vérifié
         });
         await this.usersRepo.save(admin);
-        const template = await this.templateRepo.findOne({
+        let template = await this.templateRepo.findOne({
           where: { partner_type: dto.partner_type },
         });
-
+        console.log(template)
+        if (!template) {
+      template = this.templateRepo.create({
+        partner_type: dto.partner_type,
+        template_url: '', // optionnel
+      });
+      await this.templateRepo.save(template);
+    }
         // Crée le profile partenaire
         const partnerProfile = this.partnerRepo.create({
           user: admin, // associe le User
@@ -100,6 +108,7 @@ export class PartnersService {
     });
     await this.usersRepo.save(user);
 
+    console.log(dto)
     // Récupère ou crée le template
     let template = await this.templateRepo.findOne({
       where: { partner_type: dto.partner_type },

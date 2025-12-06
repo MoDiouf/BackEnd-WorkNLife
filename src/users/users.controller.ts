@@ -31,7 +31,6 @@ async requestDriver(
   @Body() dto: CreateDriverVerificationDto,
   @UploadedFile() file: Express.Multer.File
 ) {
-  console.log("Called")
   const userId = req.user.sub;
 
   if (!file) {

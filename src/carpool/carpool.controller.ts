@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { CarpoolService } from './carpool.service';
-import { CreateCarpoolDto, UpdateCarpoolStatusDto } from './carpool.dto';
+import {  CreateCarpoolDto, UpdateCarpoolStatusDto } from './carpool.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('carpools')
@@ -11,8 +11,17 @@ export class CarpoolController {
  @Post()
 async createCarpool(@Body() dto: CreateCarpoolDto, @Req() req) {
   const driver_id = req.user.sub;
-
-  return this.carpoolService.createCarpool({ ...dto, driver_id });
+  //console.log("Called")
+  return this.carpoolService.createCarpool({
+    driver_id,
+    start_point: dto.start_point,
+    end_point: dto.end_point,
+    departure_time: dto.departure_time, // ✅ String, pas Date
+    available_seats: dto.available_seats,
+    price_per_seat: dto.price_per_seat,
+    key_points: dto.key_points || [], // ✅ Tableau vide par défaut
+    status: dto.status,
+  });
 }
 
 @Get('check-permission')
@@ -40,6 +49,7 @@ async isValide(@Req() req){
 
   @Post('demande')
   async createRideRequest(@Body() body, @Req() req) {
+    console.log("Called")
     const user_id = req.user.sub;
     return this.carpoolService.createRideRequest(body.carpool_id, user_id);
   }

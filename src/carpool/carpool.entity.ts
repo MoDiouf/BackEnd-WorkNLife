@@ -1,22 +1,36 @@
 import { User } from "src/users/users.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn,  } from "typeorm";
 
-@Entity()
+export enum CarpoolStatus {
+  PLANIFIE = 'planifie',
+  EN_COURS = 'en_cours',
+  TERMINE = 'termine',
+  ANNULE = 'annule',
+}
+
+@Entity('Carpool')
 export class Carpool {
   @PrimaryGeneratedColumn()
   id_carpool: number;
 
   @Column()
-  driver_id: number;
+  driver_id: number; // ✅ Garder le même nom que la table
 
-  @Column({ length: 255 })
+  @ManyToOne(() => User)
+@JoinColumn({ name: 'driver_id' })
+driver: User;
+
+  @Column()
   start_point: string;
 
-  @Column({ length: 255 })
+  @Column()
   end_point: string;
 
+  @Column({ type: 'json', nullable: true })
+  key_points: string[]; // ✅ Défini correctement
+
   @Column({ type: 'datetime' })
-  departure_time: Date;
+  departure_time: Date; // ✅ Type Date pour TypeORM
 
   @Column()
   available_seats: number;
@@ -26,12 +40,12 @@ export class Carpool {
 
   @Column({
     type: 'enum',
-    enum: ['planifie', 'en_cours', 'termine', 'annule'],
-    default: 'planifie',
+    enum: CarpoolStatus,
+    default: CarpoolStatus.PLANIFIE,
   })
-  status: string;
+  status: CarpoolStatus;
 
-  @CreateDateColumn()
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 }
 

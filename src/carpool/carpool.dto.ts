@@ -1,5 +1,7 @@
-// src/carpool/dto/create-carpool.dto.ts
-import { IsString, IsNumber, IsDate, IsOptional, IsEnum } from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { IsString, IsNumber, IsOptional, IsEnum, IsDateString, IsArray } from 'class-validator';
+import { User } from 'src/users/users.entity';
+import { CarpoolStatus } from './carpool.entity';
 
 export class CreateCarpoolDto {
   @IsString()
@@ -8,19 +10,27 @@ export class CreateCarpoolDto {
   @IsString()
   end_point: string;
 
-  @IsDate()
-  departure_time: Date;
+  // ✅ Retirez Column() - ce n'est pas pour les DTOs
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  key_points?: string[];
+
+  // ✅ Le frontend envoie une string ISO
+  @IsDateString()
+  departure_time: string; // String reçue du frontend
 
   @IsNumber()
-  availaavailable_seatsble_seats: number;
+  available_seats: number;
 
   @IsNumber()
   price_per_seat: number;
 
-  @IsEnum(['planifie', 'en_cours', 'termine', 'annule'])
-  status: 'planifie' | 'en_cours' | 'termine' | 'annule';
+  @IsEnum(CarpoolStatus)
+  @IsOptional()
+  status?: CarpoolStatus; // Optionnel, car valeur par défaut
 }
 export class UpdateCarpoolStatusDto {
-  @IsEnum(['planifie', 'en_cours', 'termine', 'annule'])
-  status: 'planifie' | 'en_cours' | 'termine' | 'annule';
+  @IsEnum(CarpoolStatus)
+  status: CarpoolStatus; // Type CarpoolStatus, pas string
 }
