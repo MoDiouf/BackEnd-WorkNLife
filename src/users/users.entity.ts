@@ -1,4 +1,5 @@
 // users/users.entity.ts
+import { RideRequest } from 'src/carpool/carpool.entity';
 import { Commande } from 'src/partner/commandes/commandes.entity';
 import { PartnerProfile } from 'src/partner/partner.entity';
 import { Reservation } from 'src/reservation/reservation.entity';
@@ -44,6 +45,10 @@ commandes: Commande[];
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
 reservations: Reservation[];
+@OneToMany(() => RideRequest, (ride) => ride.user)
+rideRequests: RideRequest[];
+
+
 }
 
 @Entity('IdentityVerification')

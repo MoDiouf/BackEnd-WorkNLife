@@ -2,6 +2,7 @@ import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, 
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { CarpoolService } from './carpool.service';
 import {  CreateCarpoolDto, UpdateCarpoolStatusDto } from './carpool.dto';
+import { log } from 'console';
 
 @UseGuards(JwtAuthGuard)
 @Controller('carpools')
@@ -44,14 +45,19 @@ async isValide(@Req() req){
     @Req() req,
   ) {
     const driver_id = req.user.sub;
-    return this.carpoolService.updateStatus( dto.status, driver_id);
+    console.log("Mise à jour du statut par le conducteur ID:", driver_id);
+    return this.carpoolService.updateStatus( dto, driver_id);
   }
+@Get('requests')
+getDriverRequests(@Req() req) {
+  return this.carpoolService.getPendingRequestsForDriver(req.user.sub);
+}
 
   @Post('demande')
   async createRideRequest(@Body() body, @Req() req) {
-    console.log("Called")
+    
     const user_id = req.user.sub;
-    return this.carpoolService.createRideRequest(body.carpool_id, user_id);
+    return this.carpoolService.createRideRequest(body.idCarpool, user_id);
   }
   // ✅ Supprimer un trajet (optionnel)
   @Delete('id')

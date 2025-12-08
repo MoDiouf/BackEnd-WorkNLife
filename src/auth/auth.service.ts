@@ -45,6 +45,7 @@ export class AuthService {
   return {
     access_token: accessTokenDefault,
     mobile_token: accessTokenMobile,
+    user
   };
   }
 

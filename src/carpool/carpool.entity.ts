@@ -1,5 +1,5 @@
 import { User } from "src/users/users.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn,  } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,  } from "typeorm";
 
 export enum CarpoolStatus {
   PLANIFIE = 'planifie',
@@ -47,6 +47,10 @@ driver: User;
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
+  @OneToMany(() => RideRequest, (ride) => ride.carpool)
+requests: RideRequest[];
+
+
 }
 
 @Entity('RideRequest') // correspond au nom exact de ta table
@@ -57,6 +61,7 @@ export class RideRequest {
   @Column({ name: 'carpool_id', nullable: true })
   carpool_id: number;
 
+  
   @Column({ name: 'user_id', nullable: true })
   user_id: number;
 
@@ -70,12 +75,13 @@ export class RideRequest {
   @Column({ type: 'datetime', name: 'requested_at', nullable: true })
   requested_at: Date;
 
-  // ⚡ Relations (optionnelles)
-  @ManyToOne(() => Carpool, (carpool) => carpool.id_carpool, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'carpool_id' })
-  carpool: Carpool;
+ @ManyToOne(() => Carpool, (carpool) => carpool.requests, { onDelete: 'CASCADE' })
+@JoinColumn({ name: 'carpool_id' })
+carpool: Carpool;
 
-  @ManyToOne(() => User, (user) => user.id_user, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+@ManyToOne(() => User, (user) => user.rideRequests, { onDelete: 'CASCADE' })
+@JoinColumn({ name: 'user_id' })
+user: User;
+
+  
 }

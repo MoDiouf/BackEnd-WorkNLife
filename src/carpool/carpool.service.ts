@@ -3,6 +3,9 @@ import { Carpool, RideRequest, CarpoolStatus } from './carpool.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdentityVerification, User } from 'src/users/users.entity';
+import { CarpoolGateway } from './carpool.gateway';
+import { UpdateCarpoolStatusDto } from './carpool.dto';
+import { log } from 'console';
 
 
 @Injectable()
@@ -14,6 +17,9 @@ export class CarpoolService {
     private readonly verificationRepo: Repository<IdentityVerification>,
     @InjectRepository(RideRequest)
     private readonly rideRequestRepo: Repository<RideRequest>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+    private readonly carpoolGateway: CarpoolGateway,
   ) {}
 
   async isDriverVerified(user_id: number): Promise<boolean> {
@@ -48,8 +54,9 @@ async createCarpool(data: {
   carpool.key_points = data.key_points; // ✅ key_points (avec underscore)
   carpool.status = data.status || CarpoolStatus.PLANIFIE;
   carpool.created_at = new Date();
-
-  return this.carpoolRepo.save(carpool);
+  const CarpoolSaved = await this.carpoolRepo.save(carpool);
+  console.log("Nouveau carpool créé avec ID:", CarpoolSaved.id_carpool);
+  return CarpoolSaved;
 }
   async findAvailableCarpools() {
   return this.carpoolRepo.find({
@@ -60,36 +67,103 @@ async createCarpool(data: {
 }
 
   
-  async updateStatus(status: CarpoolStatus, id_driver: number) { // ✅ Typez avec CarpoolStatus
-  const carpool = await this.carpoolRepo.findOne({ 
-    where: { driver_id: id_driver } 
+  async updateStatus(dto: UpdateCarpoolStatusDto, driver_id: number) {
+    console.log(driver_id);
+    
+  const request = await this.rideRequestRepo.findOne({
+    where: { id_request: dto.request_id },
+    relations: ['carpool'],
   });
+  console.log(request);
   
-  if (!carpool) throw new NotFoundException('Trajet introuvable');
-  if (carpool.driver_id !== id_driver)
-    throw new ForbiddenException('Vous ne pouvez modifier que vos trajets');
+  if (!request) throw new NotFoundException('Demande introuvable');
 
-  carpool.status = status; // ✅ Maintenant TypeScript est content
-  return this.carpoolRepo.save(carpool);
-}
+  // ✅ Vérification que seul le chauffeur du trajet peut répondre
+  if (request.carpool.driver_id !== driver_id) {
+    throw new ForbiddenException("Vous n'êtes pas autorisé");
+  }
 
-  async createRideRequest(carpool_id: number, user_id: number) {
-    const carpool = await this.carpoolRepo.findOne({ where: { id_carpool: carpool_id } });
-    if (!carpool) throw new NotFoundException('Trajet introuvable');
+  // ✅ Mettre à jour le status de la demande
+  request.status = dto.status;
+  const updatedRequest = await this.rideRequestRepo.save(request);
 
-    if (carpool.status !== 'planifie') {
-      throw new ForbiddenException('Ce trajet n’est pas disponible pour une demande');
+  // ✅ Si la demande est acceptée, mettre à jour le nombre de places
+  if (dto.status === 'accepte') {
+    const carpool = request.carpool;
+
+    if (carpool.available_seats <= 0) {
+      throw new ForbiddenException('Plus de places disponibles');
     }
 
-    const rideRequest = this.rideRequestRepo.create({
-      carpool_id,
-      user_id,
-      status: 'en_attente',
-      requested_at: new Date(),
-    });
-    //this.sendNotificationToDriver(carpool.driver_id, user_id, carpool_id);
-    return this.rideRequestRepo.save(rideRequest);
+    carpool.available_seats -= 1;
+
+    await this.carpoolRepo.save(carpool);
   }
+
+  // ✅ Notifier uniquement le demandeur
+  this.carpoolGateway.notifyUser(
+    request.user_id,
+    'rideRequestResponse',
+    {
+      status: dto.status,
+      carpool_id: request.carpool_id,
+      request_id: request.id_request,
+      remaining_seats: request.carpool.available_seats - (dto.status === 'accepte' ? 1 : 0),
+    }
+  );
+
+  return updatedRequest;
+}
+
+
+  async createRideRequest(carpool_id: number, user_id: number) {
+  const carpool = await this.carpoolRepo.findOne({ where: { id_carpool: carpool_id } });
+  if (!carpool) throw new NotFoundException('Trajet introuvable');
+
+  if (carpool.status !== 'planifie') {
+    throw new ForbiddenException('Ce trajet n’est pas disponible pour une demande');
+  }
+  console.log(carpool_id);
+  
+  const rideRequest = this.rideRequestRepo.create({
+    carpool_id:carpool_id,
+    user_id:user_id,
+    status: 'en_attente',
+    requested_at: new Date(),
+  });
+  console.log(rideRequest);
+  
+  const savedRequest = await this.rideRequestRepo.save(rideRequest);
+
+  const user = await this.userRepo.findOne({ where: { id_user: user_id } });
+  if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+
+  this.carpoolGateway.notifyUser(
+    carpool.driver_id,
+    'newRideRequest',
+    {
+      rideRequestId: savedRequest.id_request,
+      carpool_id,
+      user:{ id: user.id_user, email: user.email, phone: user.phone, pickup_point:"Rond-Point Dakar",heure:"17:00" },
+    }
+  );
+  console.log("Notification envoyée au conducteur");
+  return savedRequest;
+}
+async getPendingRequestsForDriver(driver_id: number) {
+  return this.rideRequestRepo.find({
+    where: {
+      status: 'en_attente',
+      carpool: {
+        driver_id: driver_id,   // IMPORTANT !
+      }
+    },
+    relations: ['carpool', 'user'],
+  });
+}
+
+
   async deleteCarpool(id: number, driver_id: number) {
     const carpool = await this.carpoolRepo.findOne({ where: { id_carpool: id } });
     if (!carpool) throw new NotFoundException('Trajet introuvable');

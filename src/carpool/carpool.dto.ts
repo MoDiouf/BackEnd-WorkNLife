@@ -30,7 +30,15 @@ export class CreateCarpoolDto {
   @IsOptional()
   status?: CarpoolStatus; // Optionnel, car valeur par défaut
 }
+export enum CarpoolStatuss {
+  en_attente = 'en_attente',
+  accepte = 'accepte',
+  refuse = 'refuse',
+}
 export class UpdateCarpoolStatusDto {
-  @IsEnum(CarpoolStatus)
-  status: CarpoolStatus; // Type CarpoolStatus, pas string
+  @IsEnum(CarpoolStatuss)
+  status: CarpoolStatuss;
+
+  @IsNumber()
+  request_id: number;
 }

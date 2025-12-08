@@ -27,7 +27,6 @@ import { HealtyController } from './partner/healty/healty.controller';
 import { HealthyActivity } from './partner/healty/healty.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { NotificationGateway } from './notification/notification.gateway';
 import { FirebaseService } from './firebase/firebase.service';
 
 
@@ -72,6 +71,6 @@ MulterModule.register({
     
   ],
   controllers: [AppController, UsersController, AuthController, PartnerController, CarpoolController],
-  providers: [AppService, AuthService, NotificationGateway, FirebaseService],
+  providers: [AppService, AuthService, FirebaseService],
 })
 export class AppModule {}
