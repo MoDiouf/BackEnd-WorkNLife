@@ -1,5 +1,6 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-markdown-open.svg" align="center" width="30%">
+	<img width="300" height="300" alt="Horizontal-White" src="https://github.com/user-attachments/assets/4c87deae-db65-4509-8de0-35a52af45ffb" />
+
 </p>
 <p align="center"><h1 align="center">BACKEND-WORKNLIFE</h1></p>
 <p align="center">
