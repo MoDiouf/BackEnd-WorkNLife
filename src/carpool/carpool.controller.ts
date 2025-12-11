@@ -3,6 +3,7 @@ import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { CarpoolService } from './carpool.service';
 import {  CreateCarpoolDto, UpdateCarpoolStatusDto } from './carpool.dto';
 import { log } from 'console';
+import { CarpoolStatus } from './carpool.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('carpools')
@@ -55,14 +56,27 @@ getDriverRequests(@Req() req) {
 
   @Post('demande')
   async createRideRequest(@Body() body, @Req() req) {
-    
     const user_id = req.user.sub;
     return this.carpoolService.createRideRequest(body.idCarpool, user_id);
   }
   // ✅ Supprimer un trajet (optionnel)
-  @Delete('id')
-  async deleteCarpool(@Body() id: number, @Req() req) {
-    const driver_id = req.user.sub;
-    return this.carpoolService.deleteCarpool(id, driver_id);
+  @Delete(':id')
+async deleteCarpool(@Param('id') id: string, @Req() req) {
+
+  const driver_id = req.user.sub;
+  return this.carpoolService.deleteCarpool(+id, driver_id);
+}
+@Patch('status')
+  async updateStatusCarpool(
+    @Body() body: { id_carpool: number; status: CarpoolStatus },
+    @Req() req
+  ) {
+    const driver_id = req.user.sub; // l'utilisateur connecté
+    return this.carpoolService.updateCarpoolStatus(
+      body.id_carpool,
+      driver_id,
+      body.status
+    );
   }
+
 }

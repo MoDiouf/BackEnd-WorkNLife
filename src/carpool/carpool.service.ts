@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Carpool, RideRequest, CarpoolStatus } from './carpool.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdentityVerification, User } from 'src/users/users.entity';
 import { CarpoolGateway } from './carpool.gateway';
@@ -60,7 +60,7 @@ async createCarpool(data: {
 }
   async findAvailableCarpools() {
   return this.carpoolRepo.find({
-    where: { status: CarpoolStatus.PLANIFIE },
+    where: {status: In([CarpoolStatus.PLANIFIE, CarpoolStatus.EN_COURS]), },
     relations:['driver'], // ✅ Utilisez l'enum
     order: { departure_time: 'ASC' },
   });
@@ -123,7 +123,6 @@ async createCarpool(data: {
   if (carpool.status !== 'planifie') {
     throw new ForbiddenException('Ce trajet n’est pas disponible pour une demande');
   }
-  console.log(carpool_id);
   
   const rideRequest = this.rideRequestRepo.create({
     carpool_id:carpool_id,
@@ -171,5 +170,28 @@ async getPendingRequestsForDriver(driver_id: number) {
       throw new ForbiddenException('Suppression non autorisée');
 
     return this.carpoolRepo.remove(carpool);
+  }
+  async updateCarpoolStatus(
+    id_carpool: number,
+    driver_id: number,
+    status: CarpoolStatus
+  ): Promise<Carpool> {
+    const carpool = await this.carpoolRepo.findOne({
+      where: { id_carpool },
+    });
+
+    if (!carpool) {
+      throw new NotFoundException('Carpool introuvable');
+    }
+
+    if (carpool.driver_id !== driver_id) {
+      throw new ForbiddenException('Vous ne pouvez pas modifier ce trajet');
+    }
+
+    carpool.status = status; // "en_cours", "terminé", "annulé", etc.
+    if (status == 'en_cours') {
+      //Envoie de notification via Notification PUsh ou SMS
+    }
+    return this.carpoolRepo.save(carpool);
   }
 }

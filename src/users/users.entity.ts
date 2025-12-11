@@ -36,6 +36,9 @@ commandes: Commande[];
   @Column({ default: false })
   is_verified: boolean;
 
+  @Column({ type: 'longblob', nullable: true })
+  profile_picture: Buffer;
+
   @CreateDateColumn()
   created_at: Date;
    
