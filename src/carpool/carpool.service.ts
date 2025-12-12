@@ -24,12 +24,14 @@ export class CarpoolService {
 
   async isDriverVerified(user_id: number): Promise<boolean> {
     const verification = await this.verificationRepo.findOne({
-      where: {
-        user: user_id,
-        role: 'driver',
-        status: 'valide',
-      } as any,
-    });
+    where: {
+      user: { id_user: user_id }, 
+      role: 'driver',
+      status: 'valide',
+    },
+    relations: ['user'], 
+  });
+    
     return !!verification;
   }
 
@@ -116,7 +118,7 @@ async createCarpool(data: {
 }
 
 
-  async createRideRequest(carpool_id: number, user_id: number) {
+  async createRideRequest(carpool_id: number,pickup_point:string, user_id: number) {
   const carpool = await this.carpoolRepo.findOne({ where: { id_carpool: carpool_id } });
   if (!carpool) throw new NotFoundException('Trajet introuvable');
 
@@ -128,6 +130,7 @@ async createCarpool(data: {
     carpool_id:carpool_id,
     user_id:user_id,
     status: 'en_attente',
+    pickup_point: pickup_point,
     requested_at: new Date(),
   });
   console.log(rideRequest);
@@ -144,7 +147,7 @@ async createCarpool(data: {
     {
       rideRequestId: savedRequest.id_request,
       carpool_id,
-      user:{ id: user.id_user, email: user.email, phone: user.phone, pickup_point:"Rond-Point Dakar",heure:"17:00" },
+      user:{ id: user.id_user, email: user.email, phone: user.phone, pickup_point:pickup_point,heure:"17:00" },
     }
   );
   console.log("Notification envoyée au conducteur");

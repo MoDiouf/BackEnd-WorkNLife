@@ -74,6 +74,8 @@ export class RideRequest {
 
   @Column({ type: 'datetime', name: 'requested_at', nullable: true })
   requested_at: Date;
+  @Column({ type: 'varchar', length: 255, name: 'pickup_point', nullable: true })
+  pickup_point: string;
 
  @ManyToOne(() => Carpool, (carpool) => carpool.requests, { onDelete: 'CASCADE' })
 @JoinColumn({ name: 'carpool_id' })

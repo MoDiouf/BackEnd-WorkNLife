@@ -57,7 +57,7 @@ getDriverRequests(@Req() req) {
   @Post('demande')
   async createRideRequest(@Body() body, @Req() req) {
     const user_id = req.user.sub;
-    return this.carpoolService.createRideRequest(body.idCarpool, user_id);
+    return this.carpoolService.createRideRequest(body.idCarpool,body.pickup_point, user_id);
   }
   // ✅ Supprimer un trajet (optionnel)
   @Delete(':id')
