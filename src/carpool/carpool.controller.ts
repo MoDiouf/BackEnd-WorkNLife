@@ -46,7 +46,6 @@ async isValide(@Req() req){
     @Req() req,
   ) {
     const driver_id = req.user.sub;
-    console.log("Mise à jour du statut par le conducteur ID:", driver_id);
     return this.carpoolService.updateStatus( dto, driver_id);
   }
 @Get('requests')
@@ -71,12 +70,23 @@ async deleteCarpool(@Param('id') id: string, @Req() req) {
     @Body() body: { id_carpool: number; status: CarpoolStatus },
     @Req() req
   ) {
-    const driver_id = req.user.sub; // l'utilisateur connecté
+    const driver_id = req.user.sub;
+    console.log("Body",body);
+    
     return this.carpoolService.updateCarpoolStatus(
       body.id_carpool,
       driver_id,
       body.status
     );
+  }
+
+  @Get('accepted-requests/:carpoolId')
+  async getAcceptedRequests(
+    @Param('carpoolId') carpoolId: number,
+    @Req() req,
+  ) {
+    const driverId = req.user.sub;
+    return this.carpoolService.getAcceptedRequests(carpoolId);
   }
 
 }

@@ -197,4 +197,25 @@ async getPendingRequestsForDriver(driver_id: number) {
     }
     return this.carpoolRepo.save(carpool);
   }
+  async getAcceptedRequests(carpoolId: number) {
+    const requests = await this.rideRequestRepo.find({
+      where: {
+        carpool: { id_carpool: carpoolId },
+        status: 'accepte',
+      },
+      relations: ['user'],
+      order: { requested_at: 'ASC' },
+    });
+
+    return requests.map((r) => ({
+      id: r.id_request,
+      pickupPoint: r.pickup_point,
+      user: {
+        id: r.user.id_user,
+        name: r.user.full_name,
+        phone: r.user.phone,
+        email: r.user.email,
+      },
+    }));
+  }
 }
